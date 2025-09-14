@@ -1,0 +1,9 @@
+flask
+flask_sqlalchemy
+flask_bcrypt
+python-dotenv
+langchain
+openai
+faiss-cpu
+langchain-community
+pypdf
