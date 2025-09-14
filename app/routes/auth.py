@@ -1,34 +1,40 @@
 from flask import Blueprint, request, jsonify
-from ..database import db
-from ..models import User
-from flask_bcrypt import Bcrypt
+from flask_jwt_extended import create_access_token
+from ..models import db, User
 
-auth_bp = Blueprint('auth', __name__)
-bcrypt = Bcrypt()
+user_bp = Blueprint('users', __name__)
 
-@auth_bp.route('/register', methods=['POST'])
+@user_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    username = data['username']
+    password = data['password']
 
     if User.query.filter_by(username=username).first():
-        return jsonify({"error": "User already exists"}), 400
+        return jsonify({"message": "Username already exists"}), 400
 
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    user = User(username=username, password=hashed_pw)
+    user = User(username=username)
+    user.set_password(password)
     db.session.add(user)
     db.session.commit()
 
     return jsonify({"message": "User registered successfully"}), 201
 
-@auth_bp.route('/login', methods=['POST'])
+@user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    username = data['username']
+    password = data['password']
 
     user = User.query.filter_by(username=username).first()
-    if user and bcrypt.check_password_hash(user.password, password):
-        return jsonify({"message": "Login successful"}), 200
-    return jsonify({"error": "Invalid credentials"}), 401
+    if not user or not user.check_password(password):
+        return jsonify({"message": "Invalid username or password"}), 401
+
+    # ✅ Use user.id or username as identity
+    access_token = create_access_token(identity=str(user.id))
+
+
+    return jsonify({
+        "access_token": access_token,
+        "message": "Login successful"
+    }), 200

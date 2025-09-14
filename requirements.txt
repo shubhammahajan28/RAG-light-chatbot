@@ -7,3 +7,5 @@ openai
 faiss-cpu
 langchain-community
 pypdf
+flask_jwt_extended
+Flask-Bcrypt
