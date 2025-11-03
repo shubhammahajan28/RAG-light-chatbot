@@ -194,5 +194,6 @@ Sequence:
 
 ---
 
-
+## Contribution
+All improvements, big or small, are welcome — whether it’s enhancing functionality, fixing bugs, or adding new features.
 
